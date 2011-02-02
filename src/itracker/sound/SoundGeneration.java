@@ -17,7 +17,7 @@ package itracker.sound;
  * @author Michael Witt
  *
  */
-public class SoundFunctions {
+public class SoundGeneration {
 	
 	//TODO: Sinusoid generation
 	//TODO: Sinusoid addition
