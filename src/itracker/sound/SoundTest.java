@@ -25,19 +25,64 @@ public class SoundTest {
 	 * @param sampleResolution Size (in bits) of the resulting output waveform; bits per sample
 	 * @return
 	 */
-	public int [] generateSin(int sampleRate, int frequency, double length, double phase, char sampleResolution) {
+	public byte [] generateSin(int sampleRate, int frequency, double length, double phase, char sampleResolution) {
 		//calculate length of sinusoid
 		int sLength = (int) (length * sampleRate);
 		//calculate the magnitude of the sinusoid
-		int magnitude = (int) Math.pow(2, sampleResolution+1);
+		int magnitude = (int) Math.pow(2, 7)-1;
 		
 		//initialize the return array
-		int [] result = new int[sLength];
+		byte [] result = new byte[sLength];
+		char [] data = new char[sLength];
 		
 		//populate the array
 		for (int i = 0; i < sLength; i++) {
-			result[i] = (int) (magnitude * Math.cos(frequency*(double)(i/sampleRate)+phase));
+			data[i] = (char)(magnitude * Math.cos(frequency*2*Math.PI*((double)i/(double)sampleRate)+phase));
+			result[i] = (byte)data[i];
 		}
+		/*
+		for (char i : data) {
+			System.out.print((int)i + " ");
+		}
+		System.out.println();
+		//*/
 		return result;
+	}
+	
+	public void getMixerInfo() {
+	
+		
+		
+	}
+	
+	public void playSound(byte [] sound, int sampleRate) {
+		
+		new AudioPermission("play");
+		Line.Info requestedLine = new Line.Info(Clip.class);
+		Line.Info [] lines = AudioSystem.getMixer(null).getSourceLineInfo(requestedLine);
+		
+		for (Line.Info i : lines) {
+			System.out.println(i.toString());
+		}
+		
+		Clip sLine = null;
+		try {
+			sLine = AudioSystem.getClip();
+			AudioFormat f = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, sampleRate, 8, 1, 1, sampleRate, true);
+			sLine.open(f, sound, 0, sound.length);
+			System.out.println(sLine.getMicrosecondLength());
+			sLine.setMicrosecondPosition(0);
+			sLine.start();
+			int i = 0;
+			while (sLine.isRunning()) {
+				//do nothing
+				i++;
+			}
+			sLine.flush();
+			sLine.close();
+		} catch (LineUnavailableException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
